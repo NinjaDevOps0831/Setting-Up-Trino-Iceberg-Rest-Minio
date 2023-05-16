@@ -23,3 +23,97 @@
 - Trino CLI commands used for creating the schema and tables.
 
 - A detailed report validating the successful creation of the schema and tables on the Minio bucket.
+
+## Start containers
+
+```bash
+docker compose up -d
+```
+
+This will initialize `iceberg` catalog in Trino.
+It will create
+
+## Initialize `test` schema
+
+There is a simple SQL script to initialize a test schema
+in the `iceberg` catalog by copying TPCH "tiny" schema from the Trino:
+
+```bash
+docker exec -it trino trino -f /home/trino/test-schema.sql
+```
+
+It create `iceberg.test` schema.
+
+And also create next tables:
+
+- `iceberg.test.customer`
+- `iceberg.test.lineitem`
+- `iceberg.test.nation`
+- `iceberg.test.orders`
+- `iceberg.test.part`
+- `iceberg.test.partsupp`
+- `iceberg.test.region`
+- `iceberg.test.supplier`
+
+It will output follow.
+
+```bash
+CREATE SCHEMA
+CREATE TABLE: 1500 rows
+CREATE TABLE: 60175 rows
+CREATE TABLE: 25 rows
+CREATE TABLE: 15000 rows
+CREATE TABLE: 2000 rows
+CREATE TABLE: 8000 rows
+CREATE TABLE: 5 rows
+CREATE TABLE: 100 rows
+```
+
+This is not required. It is possible to create other schemata in the `iceberg`
+catalog and create and populate tables there in any way.
+
+## Running queries
+
+Connect to Trino CLI and execute queries:
+
+```bash
+docker exec -it trino trino
+```
+
+Here is some examples:
+
+It will get all tables.
+
+```bash
+docker exec -it trino trino
+
+trino> SHOW TABLES FROM iceberg.test;
+
+  TABLES
+----------
+customer
+lineitem
+nation
+orders
+part
+partsupp
+region
+supplier
+(8 rows)
+-----------
+```
+
+It will get all items from `iceberg.test.customer` table.
+
+```bash
+docker exec -it trino trino
+
+trino> SELECT * FROM iceberg.test.customer;
+
+-----------------------------------------------------
+There are some results.
+-----------------------------------------------------
+```
+
+Inspect warehouse bucket contents: open [Minio Admin panel](http://localhost:9001)
+(user name: `admin` password: `password`).
